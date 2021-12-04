@@ -1,1 +1,1 @@
-# wsr-skillcloud-moscow
+# WSR MOSCOW SKILLSCLOUD COMPANY
