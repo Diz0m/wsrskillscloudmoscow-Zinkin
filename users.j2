@@ -1,0 +1,8 @@
+useradd {{ skillcloud.users[0] }} -s /bin/bash -m 
+useradd {{ skillcloud.users[1] }} -s /bin/bash -m 
+useradd {{ skillcloud.users[2] }} -s /bin/bash -m 
+
+(echo "{{ skillcloud.passwords[0] }}"; echo "{{ skillcloud.passwords[0] }}") | passwd {{ skillcloud.users[0] }}
+(echo "{{ skillcloud.passwords[1] }}"; echo "{{ skillcloud.passwords[1] }}") | passwd {{ skillcloud.users[1] }}
+(echo "{{ skillcloud.passwords[2] }}"; echo "{{ skillcloud.passwords[2] }}") | passwd {{ skillcloud.users[2] }}
+

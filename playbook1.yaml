@@ -1,0 +1,115 @@
+---
+- name: first playbook 
+  hosts: project
+  vars_files:
+  - ./Users/privvars.yml
+  tasks:
+  - name: apt update
+    shell: apt update
+  
+  - name: install curl
+    apt:
+      name: curl
+      state: present
+    register: apt_action
+    retries: 100
+    until: apt_action is success or ('Failed to lock apt for exclusive operation' not in apt_action.msg and '/var/lib/dpkg/lock' not in apt_action.msg)
+
+  - name: ufw allow
+    ufw:
+      rule: allow
+      proto: tcp
+      port: '{{ item }}'
+    loop:
+      - 80
+      - 8888
+      - 1467
+
+  - name: copy 
+    copy: src=./docker.sh dest=/opt/docker.sh
+
+  - name: chmod
+    shell: chmod +x /opt/docker.sh
+
+  - name: docker install
+    shell: /opt/docker.sh
+
+  - name: copy2
+    copy: src=./docker-compose.sh dest=/opt/docker-compose.sh
+
+  - name: chmod
+    shell: chmod +x /opt/docker-compose.sh
+
+  - name: docker install
+    shell: /opt/docker-compose.sh
+
+  - name: mkdir
+    shell: mkdir /skillcloud-ngsite
+
+  - name: template
+    template:
+      src: ./balance.j2
+      dest: /skillcloud-ngsite/balance.conf
+
+  - name: copy
+    copy:
+      src: ./docker-compose.yml
+      dest: /skillcloud-ngsite/docker-compose.yml
+
+  - name: copy
+    copy:
+      src: ./index.html
+      dest: /skillcloud-ngsite/index.html
+
+  - name: copy
+    copy:
+      src: ./Dockerfile-site
+      dest: /skillcloud-ngsite/Dockerfile-site
+
+  - name: copy
+    copy:
+      src: ./Dockerfile-balance
+      dest: /skillcloud-ngsite/Dockerfile-balance
+
+  - name: temp
+    template:
+      src: users.j2
+      dest: /opt/users.sh
+
+  - name: chmod
+    shell: chmod +x /opt/users.sh
+
+  - name: add
+    shell: /opt/users.sh
+
+  - name: copy_ssh
+    copy: src=./sshd_config dest=/etc/ssh/sshd_config
+
+  - name: docker
+    shell: mv /skillcloud-ngsite/Dockerfile-site /skillcloud-ngsite/Dockerfile
+
+  - name: image1
+    shell: cd /skillcloud-ngsite && docker build . -t site:site
+
+  - name: docker
+    shell: mv /skillcloud-ngsite/Dockerfile /skillcloud-ngsite/Dockerfile-site
+
+  - name: docker
+    shell: mv /skillcloud-ngsite/Dockerfile-balance /skillcloud-ngsite/Dockerfile
+
+  - name: image1
+    shell: cd /skillcloud-ngsite && docker build . -t balance:balance
+
+  - name: docker
+    shell: mv /skillcloud-ngsite/Dockerfile /skillcloud-ngsite/Dockerfile-balance
+
+  - name: docker-comp
+    shell: cd /skillcloud-ngsite && docker-compose up -d
+
+  - name: ufw
+    ufw:
+      state: enabled
+
+  - name: reboot   
+    shell: reboot
+
