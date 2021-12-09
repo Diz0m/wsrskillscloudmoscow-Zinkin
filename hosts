@@ -1,7 +1,7 @@
 [project]
-project_1 ansible_host=192.168.100.241
-project_2 ansible_host=192.168.100.158
-project_3 ansible_host=192.168.100.148
+project_1
+project_2
+project_3
 
 [project:vars]
 ansible_connection=ssh
